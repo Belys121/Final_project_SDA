@@ -61,5 +61,5 @@ urlpatterns = [
     path('customer/delete/<pk>', CustomerDeleteView.as_view(), name='customer_delete'),
 
     path('subcontracts/', SubContractView.as_view(), name='navbar_subcontracts'),
-    path('subcontract/create/', SubContractCreateView.as_view(), name='subcontract_create')
+    path('subcontract/create/<param>', SubContractCreateView.as_view(), name='subcontract_create')
 ]

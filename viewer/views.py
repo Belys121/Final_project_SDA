@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 
 from .models import Contract, Customer, Position, SubContract
 from .forms import SignUpForm, ContractForm, CustomerForm, SubContractForm
@@ -128,7 +128,18 @@ class SubContractView(ListView):
     template_name = 'subcontract.html'
 
 
-class SubContractCreateView(CreateView):
+class SubContractCreateView(FormView):
     template_name = 'form.html'
     form_class = SubContractForm
     success_url = reverse_lazy('navbar_contracts_all')
+
+    def form_valid(self, form):
+        new_sub_contract = form.save(commit=False)
+        new_sub_contract.contract = Contract.objects.get(pk=int(self.kwargs["param"]))
+        #TODO - ze SubContractForm "smažte" contract field. (místo __all__ dáte jen ['subcontract_name'])
+        #TODO subcontract_number bych smazal z modelu a nahradil ho pomocí .pk, které již má každý model
+        #alternativně zde můžete použít toto:
+        #new_sub_contract.subcontract_number = 7
+        new_sub_contract.save()
+        #pomocí self.request.user zkontroluji, že jsou práva OK
+        return super().form_valid(form)
