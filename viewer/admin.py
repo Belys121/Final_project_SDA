@@ -28,14 +28,12 @@ class UserProfileAdmin(admin.ModelAdmin):
     inlines = [EmployeeInformationInline, BankAccountInline, EmergencyContactInline]
 
 
-# Registrace modelů pro administraci Django
-# Tyto modely budou dostupné v administračním rozhraní,
-# což usnadní správu dat v aplikaci.
-admin.site.register(Position)            # Model pro pozice
-admin.site.register(Customer)             # Model pro zákazníky
-admin.site.register(Contract)             # Model pro smlouvy
-admin.site.register(SubContract)          # Model pro podmínky smluv
-admin.site.register(Comment)              # Model pro komentáře
-admin.site.register(Event)                # Model pro události
-admin.site.register(SecurityQuestion)     # Model pro bezpečnostní otázky
-admin.site.register(Permission)           # Model pro oprávnění
+# registration of models for their management in the administration
+admin.site.register(Position)
+admin.site.register(Customer)
+admin.site.register(Contract)
+admin.site.register(SubContract)
+admin.site.register(Comment)
+admin.site.register(Event)
+admin.site.register(SecurityQuestion)
+admin.site.register(Permission)

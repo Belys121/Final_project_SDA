@@ -8,12 +8,12 @@ from viewer.models import Contract, Customer, SubContract, Comment
 
 class SignUpForm(UserCreationForm):
     """
-    Formulář pro registraci nového uživatele.
+    Form for registering a new user.
 
-    Tento formulář rozšiřuje UserCreationForm a zahrnuje
-    pole pro uživatelské jméno, jméno, příjmení a e-mail.
-    Nově registrovaní uživatelé budou nastaveni jako neaktivní
-    (is_active = False), dokud nebude jejich účet aktivován.
+    This form extends UserCreationForm and includes
+    fields for username, first name, last name, and email.
+    Newly registered users will be set as inactive
+    (is_active = False) until their account is activated.
     """
 
     class Meta(UserCreationForm.Meta):
@@ -22,14 +22,14 @@ class SignUpForm(UserCreationForm):
 
     def save(self, commit=True):
         """
-        Uloží instanci uživatele.
+        Saves the user instance.
 
-        Před uložením nastaví is_active na False, což znamená,
-        že nově vytvořený uživatel nebude moci přistupovat
-        k aplikaci, dokud nebude účet aktivován.
+        Before saving, sets is_active to False, meaning
+        the newly created user won't have access to the app
+        until the account is activated.
 
-        :param commit: Pokud je True, provede se uložení do databáze.
-        :return: Uložená instance uživatele.
+        :param commit: If True, saves to the database.
+        :return: Saved user instance.
         """
         self.instance.is_active = False  # Uživatel bude neaktivní
         return super().save(commit)  # Zavolá se metoda save z nadřazené třídy
@@ -37,7 +37,7 @@ class SignUpForm(UserCreationForm):
 
 class ContractForm(ModelForm):
     """
-    Formulář pro vytváření a úpravu projektů (kontraktů).
+    Form for creating and editing contracts.
     """
     class Meta:
         # Určuje model, který bude použit pro formulář.
@@ -52,7 +52,7 @@ class ContractForm(ModelForm):
 
 class CustomerForm(ModelForm):
     """
-    Formulář pro vytváření a úpravu zákazníků.
+    Form for creating and editing customers.
     """
     phone_number = forms.CharField(
         max_length=15,
@@ -74,7 +74,7 @@ class CustomerForm(ModelForm):
 
 class SubContractForm(ModelForm):
     """
-    Formulář pro vytváření a úpravu podprojektů.
+    Form for creating and editing subcontracts.
     """
     class Meta:
         model = SubContract
@@ -94,9 +94,9 @@ class CommentForm(ModelForm):
 
 
 class SearchForm(forms.Form):
-    # Pole pro vyhledávací dotaz s maximální délkou 256 znaků.
+    # Search query field with a maximum length of 256 characters.
     query = forms.CharField(
-        label="Search",  # Označení pole pro uživatelské rozhraní.
+        label="Search",  # A field label for the user interface.
         max_length=256
     )
 
@@ -183,38 +183,38 @@ class EmergencyContactForm(forms.ModelForm):
     )
 
     class Meta:
-        model = EmergencyContact   # Určuje model, se kterým je formulář spojen.
-        exclude = ('user_profile',)  # Vylučuje pole 'user_profile' z formuláře, aby se zabránilo jeho úpravě uživateli.
+        model = EmergencyContact
+        exclude = ('user_profile',)  # Excludes the 'user_profile' field from the form to prevent it from being modified by the user.
 
 
 class BaseEmergencyContactFormSet(BaseInlineFormSet):
     """
-       Formulářový set zajišťuje max. 2 kontaktní osoby, kontroluje platnost a vyvolává vyjímku při nevalidních datech.
+       The form set provides a maximum of 2 contact persons, checks validity and raises an exception for non-valid data.
     """
     def clean(self):
         super().clean()
         total_forms = 0
         for form in self.forms:
-            # Zkontroluje, zda byl formulář označen k odstranění
+            # Checks whether the form has been marked for removal
             if not form.cleaned_data.get('DELETE', False):
-                # Kontroluje, zda je formulář platný
+                # Checks whether the form is valid
                 if not form.is_valid():
                     raise forms.ValidationError("Prosím opravte chyby ve formuláři.")
                 total_forms += 1
-        # Kontroluje maximální počet kontaktních osob
+        # Controls the maximum number of contact persons
         if total_forms > 2:
             raise forms.ValidationError("Můžete mít pouze dvě kontaktní osoby.")
 
 
-# Definice inline formulářového setu pro EmergencyContact
+# Definition of inline form set for EmergencyContact
 EmergencyContactFormSet = inlineformset_factory(
     UserProfile,
     EmergencyContact,
     form=EmergencyContactForm,
     formset=BaseEmergencyContactFormSet,
-    extra=2,  # Počet prázdných formulářů, které se zobrazí
-    max_num=2,  # Maximální počet formulářů, které lze přidat
-    can_delete=True,  # Umožňuje uživatelům odstraňovat kontaktní osoby
+    extra=2,  # Number of blank forms that will be displayed
+    max_num=2,  # Maximum number of forms that can be added
+    can_delete=True,  # Allows users to delete contacts
 )
 
 
@@ -260,25 +260,20 @@ class EmployeeInformationForm(forms.ModelForm):
 
 class SecurityQuestionForm(forms.ModelForm):
     """
-    Formulář pro nastavení bezpečnostní otázky a odpovědi uživatelského profilu.
+    A form for setting up security questions and answers for a user profile.
 
-    Tento formulář umožňuje uživatelům vybrat bezpečnostní otázku a
-    zadat odpověď, která bude uložena jako šifrovaný text. Odpověď je
-    zpracována pomocí speciální metody pro nastavení bezpečnostní odpovědi.
-
-    Políčka formuláře:
-    - security_question: Výběr z dostupných bezpečnostních otázek.
-    - security_answer: Odpověď na bezpečnostní otázku, která je
-      zobrazena jako heslo pro zajištění soukromí uživatele.
+    This form allows users to select a security question and
+    enter an answer that will be stored as cipher text. The answer is
+    processed using a special method for setting the security response.
     """
     security_question = forms.ModelChoiceField(
         queryset=SecurityQuestion.objects.all(),
         label='Bezpečnostní otázka',
         required=True,
-        empty_label=None  # Zabraňuje prázdnému výběru otázky
+        empty_label=None  # Avoids blank question selection
     )
     security_answer = forms.CharField(
-        widget=forms.PasswordInput,  # Zobrazit jako heslo
+        widget=forms.PasswordInput,
         label='Odpověď',
         required=True
     )
@@ -289,9 +284,8 @@ class SecurityQuestionForm(forms.ModelForm):
 
     def save(self, commit=True):
         """
-        Uloží instanci uživatelského profilu s bezpečnostní otázkou a odpovědí.
-
-        Nastaví šifrovanou odpověď pomocí metody `set_security_answer` a poté uloží profil, pokud je `commit` nastaven na True.
+        Saves an instance of the user profile with the security question and answer.
+        Sets the encrypted answer using the `set_security_answer` method, and then saves the profile if `commit` is set to True.
         """
         user_profile = super().save(commit=False)
         user_profile.set_security_answer(self.cleaned_data['security_answer'])
@@ -302,7 +296,7 @@ class SecurityQuestionForm(forms.ModelForm):
 
 class SecurityAnswerForm(forms.Form):
     """
-    Formulář pro zadání odpovědi na bezpečnostní otázku. Odpověď je šifrována pro ochranu soukromí uživatele.
+    A form for entering an answer to a security question. The answer is encrypted to protect user privacy.
     """
     security_question = forms.ModelChoiceField(
         queryset=SecurityQuestion.objects.all(),
@@ -316,7 +310,7 @@ class SecurityAnswerForm(forms.Form):
         required=True
     )
 
-# Validace podmínek pro nové heslo na backendu, včetně potvrzení nového hesla.
+# Validate the conditions for a new password on the backend, including confirmation of the new password.
 class SetNewPasswordForm(forms.Form):
     new_password = forms.CharField(
         widget=forms.PasswordInput,
@@ -329,7 +323,7 @@ class SetNewPasswordForm(forms.Form):
         required=True
     )
 
-    # Spojená metoda clean pro veškerou validaci
+    # Coupled clean method for all validation
     def clean(self):
         cleaned_data = super().clean()
         new_password = cleaned_data.get('new_password')

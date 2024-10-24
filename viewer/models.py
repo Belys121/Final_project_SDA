@@ -6,8 +6,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import models
 
-
-from django.forms import Form, PasswordInput
 from django.utils import timezone
 
 User = get_user_model()
